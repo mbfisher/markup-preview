@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require "rubygems"
+require "rack"
+require "github/markup"
+require "erb"
+require "ostruct"
+
+root = ARGV[0]
+app = Rack::Cascade.new [Rack::File.new("public"), lambda { |env|
+    req = Rack::Request.new(env)
+    markup = root+req.path
+    
+    html = GitHub::Markup.render markup, File.read(markup)
+    [
+        200,
+        {
+            "Content-Type" => "text/html"
+        },
+        [ERB.new(File.read "index.erb").result(OpenStruct.new(:output => html).instance_eval { binding })]
+    ]
+}]
+
+Rack::Server.start :app => app, :Port => 9292
