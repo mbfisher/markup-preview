@@ -7,18 +7,23 @@ require "erb"
 require "ostruct"
 
 root = ARGV[0]
-app = Rack::Cascade.new [Rack::File.new("public"), lambda { |env|
-    req = Rack::Request.new(env)
-    markup = root+req.path
-    
-    html = GitHub::Markup.render markup, File.read(markup)
-    [
-        200,
-        {
-            "Content-Type" => "text/html"
-        },
-        [ERB.new(File.read "index.erb").result(OpenStruct.new(:output => html).instance_eval { binding })]
-    ]
-}]
+tpl = ERB.new(File.read __dir__+"/../lib/index.erb")
 
-Rack::Server.start :app => app, :Port => 9292
+app = lambda { |env|
+    req = Rack::Request.new(env)
+    markup = File.expand_path(root+req.path)
+    
+    output = GitHub::Markup.render markup, File.read(markup)
+    args = OpenStruct.new(:output => output).instance_eval { binding }
+    html = tpl.result args
+
+    [200, {"Content-Type" => "text/html"}, [html]]
+}
+
+Rack::Server.start({
+    :app => Rack::Cascade.new([
+        Rack::File.new("public"),
+        Rack::ShowExceptions.new(app)
+    ]),
+    :Port => 9293
+})
