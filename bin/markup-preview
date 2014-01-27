@@ -22,8 +22,8 @@ app = lambda { |env|
 
 Rack::Server.start({
     :app => Rack::Cascade.new([
-        Rack::File.new("public"),
+        Rack::File.new(__dir__+"/../public"),
         Rack::ShowExceptions.new(app)
     ]),
-    :Port => 9293
+    :Port => 9292
 })
