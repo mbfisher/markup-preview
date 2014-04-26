@@ -20,7 +20,7 @@ Then visit `http://localhost:9292/path/to/markup`.
 
 Pass a directory to `markdown-preview` to use as a document root...
 
-    $> markdown-preview ~/git-projects
+    $> markup-preview ~/git-projects
 
 ... `http://localhost:9292/markdown-preview/README.md` will render
 `~/git-projects/markdown-preview/README.md`.
